@@ -14,7 +14,7 @@ interface ReminderItemProps {
 export default function ReminderItem({ reminder, onToggleComplete, onPress }: ReminderItemProps) {
   const isOverdue = !reminder.completed && new Date(reminder.dueAt) < new Date();
   const dueDate = new Date(reminder.dueAt);
-  const formattedDate = dueDate.toLocaleDateString('en-GB', {
+  const formattedDate = dueDate.toLocaleString('en-GB', {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
