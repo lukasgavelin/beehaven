@@ -18,11 +18,13 @@ import { useI18n } from '../../i18n';
 
 type Props = NativeStackScreenProps<InspectionsStackParamList, 'InspectionsList'>;
 
-function groupByMonth(inspections: Inspection[], localeTag: string): { title: string; data: Inspection[] }[] {
+function groupByMonth(
+  inspections: Inspection[],
+  formatDate: (value: Date | string | number, options: Intl.DateTimeFormatOptions) => string,
+): { title: string; data: Inspection[] }[] {
   const map = new Map<string, Inspection[]>();
   for (const insp of inspections) {
-    const date = new Date(insp.inspectedAt);
-    const key = new Intl.DateTimeFormat(localeTag, { month: 'long', year: 'numeric' }).format(date);
+    const key = formatDate(insp.inspectedAt, { month: 'long', year: 'numeric' });
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(insp);
   }
@@ -30,7 +32,7 @@ function groupByMonth(inspections: Inspection[], localeTag: string): { title: st
 }
 
 export default function InspectionsListScreen({ navigation }: Props) {
-  const { t, localeTag } = useI18n();
+  const { t, formatDate } = useI18n();
   const { inspections, loading, loadAllInspections } = useInspectionStore();
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export default function InspectionsListScreen({ navigation }: Props) {
     return unsubscribe;
   }, [navigation]);
 
-  const sections = groupByMonth(inspections, localeTag);
+  const sections = groupByMonth(inspections, formatDate);
 
   const renderItem = useCallback(
     ({ item }: { item: Inspection }) => (
@@ -53,7 +55,7 @@ export default function InspectionsListScreen({ navigation }: Props) {
         }
       />
     ),
-    [],
+    [navigation],
   );
 
   return (

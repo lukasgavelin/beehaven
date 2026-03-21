@@ -23,7 +23,7 @@ import { useI18n } from '../../i18n';
 type Props = NativeStackScreenProps<RemindersStackParamList, 'ReminderForm'>;
 
 export default function ReminderFormScreen({ navigation }: Props) {
-  const { t, formatDate, localeTag } = useI18n();
+  const { t, formatDate } = useI18n();
   const { addReminder } = useReminderStore();
   const { hives } = useHiveStore();
 
@@ -119,7 +119,7 @@ export default function ReminderFormScreen({ navigation }: Props) {
           activeOpacity={0.8}
         >
           <Text style={styles.dateText}>
-            {new Intl.DateTimeFormat(localeTag, { hour: '2-digit', minute: '2-digit' }).format(dueDate)}
+            {formatDate(dueDate, { hour: '2-digit', minute: '2-digit' })}
           </Text>
         </TouchableOpacity>
         {showTimePicker && (

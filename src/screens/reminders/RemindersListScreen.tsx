@@ -62,7 +62,7 @@ export default function RemindersListScreen({ navigation }: Props) {
         onPress={() => handleDelete(item)}
       />
     ),
-    [reminders],
+    [handleDelete, toggleComplete],
   );
 
   return (
