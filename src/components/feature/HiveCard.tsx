@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react-native';
 import { Hive, Queen } from '../../types';
 import { Colors } from '../../theme/colors';
 import { Spacing, Radius } from '../../theme/spacing';
+import { formatDate, getHiveTypeLabel, translate, useI18n } from '../../i18n';
 
 interface HiveCardProps {
   hive: Hive;
@@ -22,9 +23,10 @@ function queenStatusColor(status?: string): string {
 }
 
 export default function HiveCard({ hive, queen, lastInspectionDate, onPress }: HiveCardProps) {
+  const { locale } = useI18n();
   const formattedDate = lastInspectionDate
-    ? new Date(lastInspectionDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-    : 'No inspections yet';
+    ? formatDate(lastInspectionDate, { day: 'numeric', month: 'short', year: 'numeric' }, locale)
+    : translate('empty.noInspectionsTitle', undefined, locale);
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
@@ -36,7 +38,7 @@ export default function HiveCard({ hive, queen, lastInspectionDate, onPress }: H
         )}
         <View style={styles.content}>
           <Text style={styles.name}>{hive.name}</Text>
-          <Text style={styles.meta}>{hive.type}</Text>
+          <Text style={styles.meta}>{getHiveTypeLabel(hive.type, locale)}</Text>
           <View style={styles.footer}>
             <Text style={styles.dateText}>{formattedDate}</Text>
             {queen && (

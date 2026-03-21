@@ -16,20 +16,15 @@ import Button from '../../components/common/Button';
 import { Colors } from '../../theme/colors';
 import { Spacing, Radius } from '../../theme/spacing';
 import { HiveType } from '../../types';
+import { getHiveTypeLabel, useI18n } from '../../i18n';
 
 type Props = NativeStackScreenProps<HiveStackParamList, 'HiveForm'>;
 
 const HIVE_TYPES: HiveType[] = ['Langstroth', 'Dadant', 'Warré', 'Nucleus'];
-const COLOR_OPTIONS = [
-  { label: 'None', value: '' },
-  { label: 'Yellow', value: '#F5C842' },
-  { label: 'White', value: '#DDDDDD' },
-  { label: 'Red', value: '#E05252' },
-  { label: 'Blue', value: '#5279E0' },
-  { label: 'Green', value: '#52A86E' },
-];
+const COLOR_OPTIONS = ['', '#F5C842', '#DDDDDD', '#E05252', '#5279E0', '#52A86E'];
 
 export default function HiveFormScreen({ route, navigation }: Props) {
+  const { t, locale } = useI18n();
   const { hiveId } = route.params ?? {};
   const { hives, addHive, editHive, removeHive } = useHiveStore();
   const existing = hiveId ? hives.find((h) => h.id === hiveId) : undefined;
@@ -42,7 +37,7 @@ export default function HiveFormScreen({ route, navigation }: Props) {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Name required', 'Please enter a name for the hive.');
+      Alert.alert(t('hiveForm.nameRequiredTitle'), t('hiveForm.nameRequiredMessage'));
       return;
     }
     setSaving(true);
@@ -63,15 +58,15 @@ export default function HiveFormScreen({ route, navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <TextInput
-          label="Name"
+          label={t('hiveForm.nameLabel')}
           value={name}
           onChangeText={setName}
-          placeholder="e.g. Garden Hive A"
+          placeholder={t('hiveForm.namePlaceholder')}
           autoFocus={!existing}
         />
 
         {/* Hive Type */}
-        <Text style={styles.fieldLabel}>Type</Text>
+        <Text style={styles.fieldLabel}>{t('hiveForm.typeLabel')}</Text>
         <View style={styles.typeRow}>
           {HIVE_TYPES.map((t) => (
             <TouchableOpacity
@@ -80,40 +75,40 @@ export default function HiveFormScreen({ route, navigation }: Props) {
               onPress={() => setType(t)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.typeChipText, type === t && styles.typeChipTextActive]}>{t}</Text>
+              <Text style={[styles.typeChipText, type === t && styles.typeChipTextActive]}>{getHiveTypeLabel(t, locale)}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Queen mark color */}
-        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>Queen mark colour</Text>
+        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>{t('hiveForm.queenMarkColourLabel')}</Text>
         <View style={styles.colorRow}>
           {COLOR_OPTIONS.map((opt) => (
             <TouchableOpacity
-              key={opt.value}
+              key={opt || 'none'}
               style={[
                 styles.colorSwatch,
-                opt.value ? { backgroundColor: opt.value } : styles.emptyColor,
-                colorMark === opt.value && styles.colorSwatchActive,
+                opt ? { backgroundColor: opt } : styles.emptyColor,
+                colorMark === opt && styles.colorSwatchActive,
               ]}
-              onPress={() => setColorMark(opt.value)}
+              onPress={() => setColorMark(opt)}
               activeOpacity={0.8}
             />
           ))}
         </View>
 
         <TextInput
-          label="Notes"
+          label={t('hiveForm.notesLabel')}
           value={notes}
           onChangeText={setNotes}
-          placeholder="Optional notes about this hive"
+          placeholder={t('hiveForm.notesPlaceholder')}
           multiline
           numberOfLines={4}
           style={{ minHeight: 80, paddingTop: 8 }}
         />
 
         <Button
-          title={existing ? 'Save Changes' : 'Create Hive'}
+          title={existing ? t('common.saveChanges') : t('common.createHive')}
           onPress={handleSave}
           loading={saving}
           style={{ marginTop: Spacing.lg }}

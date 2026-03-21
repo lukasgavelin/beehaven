@@ -19,6 +19,7 @@ import EmptyState from '../../components/common/EmptyState';
 import { Colors } from '../../theme/colors';
 import { Spacing } from '../../theme/spacing';
 import { QueenStatus } from '../../types';
+import { getHiveTypeLabel, getQueenStatusLabel, useI18n } from '../../i18n';
 
 type Props = NativeStackScreenProps<HiveStackParamList, 'HiveDetail'>;
 
@@ -32,6 +33,7 @@ function queenBadgeColor(status: QueenStatus): 'success' | 'warning' | 'error' |
 }
 
 export default function HiveDetailScreen({ route, navigation }: Props) {
+  const { t, locale } = useI18n();
   const { hiveId } = route.params;
   const { hives, queens, removeHive, loadQueenForHive } = useHiveStore();
   const { hiveInspections, loadInspectionsForHive } = useInspectionStore();
@@ -59,16 +61,16 @@ export default function HiveDetailScreen({ route, navigation }: Props) {
         ),
       });
     }
-  }, [hive]);
+  }, [hive, hiveId, navigation, locale]);
 
   const handleDelete = useCallback(() => {
     Alert.alert(
-      'Delete Hive',
-      `This will permanently delete "${hive?.name}" and all its inspections. This cannot be undone.`,
+      t('hiveDetail.deleteTitle'),
+      t('hiveDetail.deleteMessage', { name: hive?.name ?? '' }),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             await removeHive(hiveId);
@@ -77,7 +79,7 @@ export default function HiveDetailScreen({ route, navigation }: Props) {
         },
       ],
     );
-  }, [hive, hiveId]);
+  }, [hive, hiveId, navigation, removeHive, t]);
 
   if (!hive) return null;
 
@@ -87,44 +89,44 @@ export default function HiveDetailScreen({ route, navigation }: Props) {
         {/* Hive meta */}
         <View style={styles.section}>
           <Text style={styles.hiveName}>{hive.name}</Text>
-          <Text style={styles.hiveMeta}>{hive.type}</Text>
+          <Text style={styles.hiveMeta}>{getHiveTypeLabel(hive.type, locale)}</Text>
           {hive.notes ? <Text style={styles.notes}>{hive.notes}</Text> : null}
         </View>
 
         {/* Queen section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionLabel}>Queen</Text>
+            <Text style={styles.sectionLabel}>{t('hiveDetail.queenSection')}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('QueenForm', { hiveId })}>
-              <Text style={styles.linkText}>{queen ? 'Edit' : 'Add'}</Text>
+              <Text style={styles.linkText}>{queen ? t('common.edit') : t('common.add')}</Text>
             </TouchableOpacity>
           </View>
           {queen ? (
             <View style={styles.queenRow}>
               <Crown color={Colors.accent} size={16} strokeWidth={1.5} />
               <Text style={styles.queenText}>
-                {queen.breed || 'Unknown breed'} · {queen.year || '?'}
+                {queen.breed || t('hiveDetail.unknownBreed')} · {queen.year || '?'}
               </Text>
               <Badge
-                label={queen.status.charAt(0).toUpperCase() + queen.status.slice(1)}
+                label={getQueenStatusLabel(queen.status, locale)}
                 color={queenBadgeColor(queen.status)}
               />
             </View>
           ) : (
-            <Text style={styles.emptyText}>No queen recorded</Text>
+            <Text style={styles.emptyText}>{t('hiveDetail.noQueen')}</Text>
           )}
         </View>
 
         {/* Inspections */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionLabel}>Inspections</Text>
+            <Text style={styles.sectionLabel}>{t('hiveDetail.inspectionsSection')}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('InspectionForm', { hiveId })}>
               <Plus color={Colors.accent} size={18} strokeWidth={1.5} />
             </TouchableOpacity>
           </View>
           {inspections.length === 0 ? (
-            <Text style={styles.emptyText}>No inspections recorded</Text>
+            <Text style={styles.emptyText}>{t('hiveDetail.noInspections')}</Text>
           ) : (
             <View style={styles.inspectionList}>
               {inspections.map((insp) => (
@@ -145,7 +147,7 @@ export default function HiveDetailScreen({ route, navigation }: Props) {
 
         {/* Delete */}
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-          <Text style={styles.deleteText}>Delete Hive</Text>
+          <Text style={styles.deleteText}>{t('hiveDetail.deleteButton')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -14,14 +14,15 @@ import EmptyState from '../../components/common/EmptyState';
 import { Colors } from '../../theme/colors';
 import { Spacing } from '../../theme/spacing';
 import { Inspection } from '../../types';
+import { useI18n } from '../../i18n';
 
 type Props = NativeStackScreenProps<InspectionsStackParamList, 'InspectionsList'>;
 
-function groupByMonth(inspections: Inspection[]): { title: string; data: Inspection[] }[] {
+function groupByMonth(inspections: Inspection[], localeTag: string): { title: string; data: Inspection[] }[] {
   const map = new Map<string, Inspection[]>();
   for (const insp of inspections) {
     const date = new Date(insp.inspectedAt);
-    const key = date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    const key = new Intl.DateTimeFormat(localeTag, { month: 'long', year: 'numeric' }).format(date);
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(insp);
   }
@@ -29,6 +30,7 @@ function groupByMonth(inspections: Inspection[]): { title: string; data: Inspect
 }
 
 export default function InspectionsListScreen({ navigation }: Props) {
+  const { t, localeTag } = useI18n();
   const { inspections, loading, loadAllInspections } = useInspectionStore();
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function InspectionsListScreen({ navigation }: Props) {
     return unsubscribe;
   }, [navigation]);
 
-  const sections = groupByMonth(inspections);
+  const sections = groupByMonth(inspections, localeTag);
 
   const renderItem = useCallback(
     ({ item }: { item: Inspection }) => (
@@ -69,8 +71,8 @@ export default function InspectionsListScreen({ navigation }: Props) {
         ListEmptyComponent={
           loading ? null : (
             <EmptyState
-              message="No inspections yet"
-              subMessage="Open a hive and add your first inspection"
+              message={t('empty.noInspectionsTitle')}
+              subMessage={t('empty.noInspectionsSubtitle')}
             />
           )
         }

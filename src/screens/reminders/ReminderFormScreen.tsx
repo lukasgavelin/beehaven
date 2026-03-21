@@ -18,10 +18,12 @@ import TextInput from '../../components/common/TextInput';
 import Button from '../../components/common/Button';
 import { Colors } from '../../theme/colors';
 import { Spacing, Radius } from '../../theme/spacing';
+import { useI18n } from '../../i18n';
 
 type Props = NativeStackScreenProps<RemindersStackParamList, 'ReminderForm'>;
 
 export default function ReminderFormScreen({ navigation }: Props) {
+  const { t, formatDate, localeTag } = useI18n();
   const { addReminder } = useReminderStore();
   const { hives } = useHiveStore();
 
@@ -39,7 +41,7 @@ export default function ReminderFormScreen({ navigation }: Props) {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('Title required', 'Please enter a title for the reminder.');
+      Alert.alert(t('reminder.form.titleRequiredTitle'), t('reminder.form.titleRequiredMessage'));
       return;
     }
     setSaving(true);
@@ -54,7 +56,7 @@ export default function ReminderFormScreen({ navigation }: Props) {
       });
       navigation.goBack();
     } catch {
-      Alert.alert('Error', 'Could not save reminder.');
+      Alert.alert(t('reminder.form.saveErrorTitle'), t('reminder.form.saveErrorMessage'));
     } finally {
       setSaving(false);
     }
@@ -64,31 +66,31 @@ export default function ReminderFormScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <TextInput
-          label="Title"
+          label={t('reminder.form.titleLabel')}
           value={title}
           onChangeText={setTitle}
-          placeholder="e.g. Check varroa levels"
+          placeholder={t('reminder.form.titlePlaceholder')}
           autoFocus
         />
         <TextInput
-          label="Notes"
+          label={t('reminder.form.notesLabel')}
           value={notes}
           onChangeText={setNotes}
-          placeholder="Optional details"
+          placeholder={t('reminder.form.notesPlaceholder')}
           multiline
           numberOfLines={3}
           style={{ minHeight: 60, paddingTop: 8 }}
         />
 
         {/* Date */}
-        <Text style={styles.fieldLabel}>Due date</Text>
+        <Text style={styles.fieldLabel}>{t('reminder.form.dueDateLabel')}</Text>
         <TouchableOpacity
           style={styles.dateButton}
           onPress={() => setShowDatePicker(true)}
           activeOpacity={0.8}
         >
           <Text style={styles.dateText}>
-            {dueDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
+            {formatDate(dueDate, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
           </Text>
         </TouchableOpacity>
         {showDatePicker && (
@@ -110,14 +112,14 @@ export default function ReminderFormScreen({ navigation }: Props) {
         )}
 
         {/* Time */}
-        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>Due time</Text>
+        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>{t('reminder.form.dueTimeLabel')}</Text>
         <TouchableOpacity
           style={styles.dateButton}
           onPress={() => setShowTimePicker(true)}
           activeOpacity={0.8}
         >
           <Text style={styles.dateText}>
-            {dueDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+            {new Intl.DateTimeFormat(localeTag, { hour: '2-digit', minute: '2-digit' }).format(dueDate)}
           </Text>
         </TouchableOpacity>
         {showTimePicker && (
@@ -135,7 +137,7 @@ export default function ReminderFormScreen({ navigation }: Props) {
         {/* Hive selector */}
         {hives.length > 0 && (
           <>
-            <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>Link to hive (optional)</Text>
+            <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>{t('reminder.form.linkToHiveLabel')}</Text>
             <View style={styles.hiveChips}>
               <TouchableOpacity
                 style={[styles.chip, selectedHiveId === null && styles.chipActive]}
@@ -143,7 +145,7 @@ export default function ReminderFormScreen({ navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Text style={[styles.chipText, selectedHiveId === null && styles.chipTextActive]}>
-                  None
+                  {t('common.none')}
                 </Text>
               </TouchableOpacity>
               {hives.map((h) => (
@@ -163,7 +165,7 @@ export default function ReminderFormScreen({ navigation }: Props) {
         )}
 
         <Button
-          title="Save Reminder"
+          title={t('common.saveReminder')}
           onPress={handleSave}
           loading={saving}
           style={{ marginTop: Spacing.xl }}

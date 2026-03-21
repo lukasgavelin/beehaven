@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Cloud, Sun, CloudRain, Snowflake, CloudLightning } from 'lucide-react-native';
 import { Colors } from '../../theme/colors';
 import { Spacing, Radius } from '../../theme/spacing';
+import { getWeatherConditionLabel, useI18n } from '../../i18n';
 
 interface WeatherChipProps {
   temp: number;
@@ -20,11 +21,13 @@ function WeatherIcon({ condition, size = 14 }: { condition: string; size?: numbe
 }
 
 export default function WeatherChip({ temp, condition, humidity }: WeatherChipProps) {
+  const { t, locale } = useI18n();
+
   return (
     <View style={styles.chip}>
       <WeatherIcon condition={condition} />
       <Text style={styles.text}>
-        {temp}°C · {condition} · {humidity}% humidity
+        {temp}°C · {getWeatherConditionLabel(condition, locale)} · {humidity}% {t('weather.humidity')}
       </Text>
     </View>
   );

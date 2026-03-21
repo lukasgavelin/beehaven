@@ -18,10 +18,12 @@ import EmptyState from '../../components/common/EmptyState';
 import { Colors } from '../../theme/colors';
 import { Spacing } from '../../theme/spacing';
 import { Reminder } from '../../types';
+import { useI18n } from '../../i18n';
 
 type Props = NativeStackScreenProps<RemindersStackParamList, 'RemindersList'>;
 
 export default function RemindersListScreen({ navigation }: Props) {
+  const { t } = useI18n();
   const { reminders, loading, loadReminders, toggleComplete, removeReminder } = useReminderStore();
 
   useEffect(() => {
@@ -31,10 +33,10 @@ export default function RemindersListScreen({ navigation }: Props) {
 
   const handleDelete = useCallback(
     (reminder: Reminder) => {
-      Alert.alert('Delete Reminder', `Delete "${reminder.title}"?`, [
-        { text: 'Cancel', style: 'cancel' },
+      Alert.alert(t('reminder.list.deleteTitle'), t('reminder.list.deleteMessage', { title: reminder.title }), [
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             if (reminder.notificationId) {
@@ -45,7 +47,7 @@ export default function RemindersListScreen({ navigation }: Props) {
         },
       ]);
     },
-    [removeReminder],
+    [removeReminder, t],
   );
 
   const pending = reminders.filter((r) => !r.completed);
@@ -73,8 +75,8 @@ export default function RemindersListScreen({ navigation }: Props) {
         ListEmptyComponent={
           loading ? null : (
             <EmptyState
-              message="No reminders"
-              subMessage="Tap + to schedule a hive reminder"
+              message={t('empty.noRemindersTitle')}
+              subMessage={t('empty.noRemindersSubtitle')}
             />
           )
         }

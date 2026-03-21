@@ -22,17 +22,15 @@ import { Spacing, Radius } from '../../theme/spacing';
 import { BroodStatus, HoneyStore, WeatherData } from '../../types';
 import { getCurrentCoords } from '../../services/locationService';
 import { fetchWeather } from '../../services/weatherService';
+import { getBroodStatusLabel, getHoneyStoreLabel, getTemperLabel, useI18n } from '../../i18n';
 
 type Props = NativeStackScreenProps<HiveStackParamList, 'InspectionForm'>;
 
 const BROOD_OPTIONS: BroodStatus[] = ['good', 'capped', 'larvae', 'eggs', 'missing'];
 const HONEY_OPTIONS: HoneyStore[] = ['full', 'adequate', 'low', 'empty'];
 
-function capitalize(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
 export default function InspectionFormScreen({ route, navigation }: Props) {
+  const { t, formatDate, locale } = useI18n();
   const { hiveId } = route.params;
   const { addInspection } = useInspectionStore();
 
@@ -54,13 +52,13 @@ export default function InspectionFormScreen({ route, navigation }: Props) {
     try {
       const coords = await getCurrentCoords();
       if (!coords) {
-        Alert.alert('Location unavailable', 'Please enable location access in device settings.');
+        Alert.alert(t('inspection.form.locationUnavailableTitle'), t('inspection.form.locationUnavailableMessage'));
         return;
       }
       const data = await fetchWeather(coords.lat, coords.lon);
       setWeather(data);
     } catch {
-      Alert.alert('Error', 'Could not fetch weather. Check your internet connection.');
+      Alert.alert(t('inspection.form.fetchWeatherErrorTitle'), t('inspection.form.fetchWeatherErrorMessage'));
     } finally {
       setFetchingWeather(false);
     }
@@ -93,14 +91,14 @@ export default function InspectionFormScreen({ route, navigation }: Props) {
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
 
         {/* Date */}
-        <Text style={styles.fieldLabel}>Date</Text>
+        <Text style={styles.fieldLabel}>{t('inspection.form.dateLabel')}</Text>
         <TouchableOpacity
           style={styles.dateButton}
           onPress={() => setShowDatePicker(true)}
           activeOpacity={0.8}
         >
           <Text style={styles.dateText}>
-            {date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
+            {formatDate(date, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
           </Text>
         </TouchableOpacity>
         {showDatePicker && (
@@ -117,7 +115,7 @@ export default function InspectionFormScreen({ route, navigation }: Props) {
         )}
 
         {/* Queen seen */}
-        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>Queen seen</Text>
+        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>{t('inspection.form.queenSeenLabel')}</Text>
         <View style={styles.toggleRow}>
           {[true, false].map((v) => (
             <TouchableOpacity
@@ -127,14 +125,14 @@ export default function InspectionFormScreen({ route, navigation }: Props) {
               activeOpacity={0.8}
             >
               <Text style={[styles.chipText, queenSeen === v && styles.chipTextActive]}>
-                {v ? 'Yes' : 'No'}
+                {v ? t('common.yes') : t('common.no')}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Brood status */}
-        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>Brood status</Text>
+        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>{t('inspection.form.broodStatusLabel')}</Text>
         <View style={styles.chipRow}>
           {BROOD_OPTIONS.map((opt) => (
             <TouchableOpacity
@@ -144,14 +142,14 @@ export default function InspectionFormScreen({ route, navigation }: Props) {
               activeOpacity={0.8}
             >
               <Text style={[styles.chipText, broodStatus === opt && styles.chipTextActive]}>
-                {capitalize(opt)}
+                {getBroodStatusLabel(opt, locale)}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Honey stores */}
-        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>Honey stores</Text>
+        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>{t('inspection.form.honeyStoresLabel')}</Text>
         <View style={styles.chipRow}>
           {HONEY_OPTIONS.map((opt) => (
             <TouchableOpacity
@@ -161,14 +159,14 @@ export default function InspectionFormScreen({ route, navigation }: Props) {
               activeOpacity={0.8}
             >
               <Text style={[styles.chipText, honeyStores === opt && styles.chipTextActive]}>
-                {capitalize(opt)}
+                {getHoneyStoreLabel(opt, locale)}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Temper */}
-        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>Temper</Text>
+        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>{t('inspection.form.temperLabel')}</Text>
         <View style={styles.temperRow}>
           {[1, 2, 3, 4, 5].map((v) => (
             <TouchableOpacity
@@ -184,12 +182,12 @@ export default function InspectionFormScreen({ route, navigation }: Props) {
           ))}
         </View>
         <Text style={styles.temperHint}>
-          {temper === 1 ? 'Very calm' : temper === 2 ? 'Calm' : temper === 3 ? 'Neutral' : temper === 4 ? 'Defensive' : 'Aggressive'}
+          {getTemperLabel(temper, locale)}
         </Text>
 
         {/* Varroa */}
         <TextInput
-          label="Varroa count"
+          label={t('inspection.form.varroaCountLabel')}
           value={varroaCount}
           onChangeText={setVarroaCount}
           keyboardType="numeric"
@@ -198,22 +196,22 @@ export default function InspectionFormScreen({ route, navigation }: Props) {
 
         {/* Notes */}
         <TextInput
-          label="Notes"
+          label={t('inspection.form.notesLabel')}
           value={notes}
           onChangeText={setNotes}
-          placeholder="Observations, concerns, actions taken..."
+          placeholder={t('inspection.form.notesPlaceholder')}
           multiline
           numberOfLines={4}
           style={{ minHeight: 80, paddingTop: 8 }}
         />
 
         {/* Weather */}
-        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>Weather</Text>
+        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>{t('inspection.form.weatherLabel')}</Text>
         {weather ? (
           <View style={styles.weatherRow}>
             <WeatherChip temp={weather.temp} condition={weather.condition} humidity={weather.humidity} />
             <TouchableOpacity onPress={handleFetchWeather} style={{ marginTop: 8 }}>
-              <Text style={styles.refetchText}>Refresh</Text>
+              <Text style={styles.refetchText}>{t('common.refresh')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -227,14 +225,14 @@ export default function InspectionFormScreen({ route, navigation }: Props) {
             ) : (
               <>
                 <MapPin color={Colors.textSecondary} size={14} strokeWidth={1.5} />
-                <Text style={styles.weatherBtnText}>Fetch current weather</Text>
+                <Text style={styles.weatherBtnText}>{t('inspection.form.fetchCurrentWeather')}</Text>
               </>
             )}
           </TouchableOpacity>
         )}
 
         <Button
-          title="Save Inspection"
+          title={t('common.saveInspection')}
           onPress={handleSave}
           loading={saving}
           style={{ marginTop: Spacing.xl }}

@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react-native';
 import { Inspection } from '../../types';
 import { Colors } from '../../theme/colors';
 import { Spacing, Radius } from '../../theme/spacing';
+import { formatDate, getBroodStatusLabel, getHoneyStoreLabel, translate, useI18n } from '../../i18n';
 
 interface InspectionRowProps {
   inspection: Inspection;
@@ -23,8 +24,8 @@ function broodColor(status: string): string {
 }
 
 export default function InspectionRow({ inspection, showHiveName, onPress }: InspectionRowProps) {
-  const date = new Date(inspection.inspectedAt);
-  const day = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  const { locale } = useI18n();
+  const day = formatDate(inspection.inspectedAt, { day: 'numeric', month: 'short' }, locale);
 
   return (
     <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.8}>
@@ -38,10 +39,10 @@ export default function InspectionRow({ inspection, showHiveName, onPress }: Ins
         <View style={styles.chips}>
           <View style={[styles.dot, { backgroundColor: broodColor(inspection.broodStatus) }]} />
           <Text style={styles.chipText}>
-            {inspection.broodStatus.charAt(0).toUpperCase() + inspection.broodStatus.slice(1)} brood
+            {getBroodStatusLabel(inspection.broodStatus, locale)} {translate('inspection.row.broodSuffix', undefined, locale)}
           </Text>
           <Text style={styles.separator}>·</Text>
-          <Text style={styles.chipText}>{inspection.honeyStores} honey</Text>
+          <Text style={styles.chipText}>{getHoneyStoreLabel(inspection.honeyStores, locale)} {translate('inspection.row.honeySuffix', undefined, locale)}</Text>
         </View>
         {inspection.notes ? <Text style={styles.notes} numberOfLines={1}>{inspection.notes}</Text> : null}
       </View>

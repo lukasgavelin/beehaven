@@ -16,23 +16,15 @@ import Button from '../../components/common/Button';
 import { Colors } from '../../theme/colors';
 import { Spacing, Radius } from '../../theme/spacing';
 import { QueenStatus } from '../../types';
+import { getMarkColorLabel, getQueenStatusLabel, useI18n } from '../../i18n';
 
 type Props = NativeStackScreenProps<HiveStackParamList, 'QueenForm'>;
 
 const STATUSES: QueenStatus[] = ['active', 'missing', 'dead', 'replaced'];
-const MARK_COLORS = [
-  { label: 'White', value: 'W' },
-  { label: 'Yellow', value: 'Y' },
-  { label: 'Red', value: 'R' },
-  { label: 'Green', value: 'G' },
-  { label: 'Blue', value: 'B' },
-];
-
-function statusLabel(s: QueenStatus) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
+const MARK_COLORS = ['W', 'Y', 'R', 'G', 'B'];
 
 export default function QueenFormScreen({ route, navigation }: Props) {
+  const { t, locale } = useI18n();
   const { hiveId } = route.params;
   const { queens, saveQueen } = useHiveStore();
   const existing = queens[hiveId];
@@ -47,7 +39,7 @@ export default function QueenFormScreen({ route, navigation }: Props) {
   const handleSave = async () => {
     const yearNum = parseInt(year, 10);
     if (isNaN(yearNum) || yearNum < 2000 || yearNum > new Date().getFullYear() + 1) {
-      Alert.alert('Invalid year', 'Please enter a valid year for the queen.');
+      Alert.alert(t('queenForm.invalidYearTitle'), t('queenForm.invalidYearMessage'));
       return;
     }
     setSaving(true);
@@ -62,32 +54,32 @@ export default function QueenFormScreen({ route, navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <TextInput label="Breed" value={breed} onChangeText={setBreed} placeholder="e.g. Carniolan" />
+        <TextInput label={t('queenForm.breedLabel')} value={breed} onChangeText={setBreed} placeholder={t('queenForm.breedPlaceholder')} />
         <TextInput
-          label="Year"
+          label={t('queenForm.yearLabel')}
           value={year}
           onChangeText={setYear}
           keyboardType="numeric"
           maxLength={4}
         />
 
-        <Text style={styles.fieldLabel}>IBRA Mark Colour</Text>
+        <Text style={styles.fieldLabel}>{t('queenForm.markColourLabel')}</Text>
         <View style={styles.chipRow}>
           {MARK_COLORS.map((c) => (
             <TouchableOpacity
-              key={c.value}
-              style={[styles.chip, markColor === c.value && styles.chipActive]}
-              onPress={() => setMarkColor(c.value)}
+              key={c}
+              style={[styles.chip, markColor === c && styles.chipActive]}
+              onPress={() => setMarkColor(c)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.chipText, markColor === c.value && styles.chipTextActive]}>
-                {c.value} — {c.label}
+              <Text style={[styles.chipText, markColor === c && styles.chipTextActive]}>
+                {c} - {getMarkColorLabel(c, locale)}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>Status</Text>
+        <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>{t('queenForm.statusLabel')}</Text>
         <View style={styles.chipRow}>
           {STATUSES.map((s) => (
             <TouchableOpacity
@@ -97,24 +89,24 @@ export default function QueenFormScreen({ route, navigation }: Props) {
               activeOpacity={0.8}
             >
               <Text style={[styles.chipText, status === s && styles.chipTextActive]}>
-                {statusLabel(s)}
+                {getQueenStatusLabel(s, locale)}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
         <TextInput
-          label="Notes"
+          label={t('queenForm.notesLabel')}
           value={notes}
           onChangeText={setNotes}
-          placeholder="Optional notes"
+          placeholder={t('queenForm.notesPlaceholder')}
           multiline
           numberOfLines={3}
           style={{ marginTop: Spacing.md, minHeight: 60, paddingTop: 8 }}
         />
 
         <Button
-          title="Save Queen"
+          title={t('common.saveQueen')}
           onPress={handleSave}
           loading={saving}
           style={{ marginTop: Spacing.lg }}

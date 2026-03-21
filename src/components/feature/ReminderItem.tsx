@@ -4,6 +4,7 @@ import { Check, Bell } from 'lucide-react-native';
 import { Reminder } from '../../types';
 import { Colors } from '../../theme/colors';
 import { Spacing } from '../../theme/spacing';
+import { useI18n } from '../../i18n';
 
 interface ReminderItemProps {
   reminder: Reminder;
@@ -12,14 +13,15 @@ interface ReminderItemProps {
 }
 
 export default function ReminderItem({ reminder, onToggleComplete, onPress }: ReminderItemProps) {
+  const { localeTag } = useI18n();
   const isOverdue = !reminder.completed && new Date(reminder.dueAt) < new Date();
   const dueDate = new Date(reminder.dueAt);
-  const formattedDate = dueDate.toLocaleString('en-GB', {
+  const formattedDate = new Intl.DateTimeFormat(localeTag, {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  }).format(dueDate);
 
   return (
     <TouchableOpacity

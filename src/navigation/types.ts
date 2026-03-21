@@ -19,8 +19,13 @@ export type RemindersStackParamList = {
   ReminderForm: { reminderId?: number };
 };
 
+export type OptionsStackParamList = {
+  OptionsHome: undefined;
+};
+
 export type TabParamList = {
   HivesTab: NavigatorScreenParams<HiveStackParamList>;
   InspectionsTab: NavigatorScreenParams<InspectionsStackParamList>;
   RemindersTab: NavigatorScreenParams<RemindersStackParamList>;
+  OptionsTab: NavigatorScreenParams<OptionsStackParamList>;
 };

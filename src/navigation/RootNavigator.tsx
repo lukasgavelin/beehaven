@@ -2,10 +2,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Hexagon, ClipboardList, Bell } from 'lucide-react-native';
+import { Hexagon, ClipboardList, Bell, SlidersHorizontal } from 'lucide-react-native';
 
 import { Colors } from '../theme/colors';
-import { TabParamList, HiveStackParamList, InspectionsStackParamList, RemindersStackParamList } from './types';
+import { TabParamList, HiveStackParamList, InspectionsStackParamList, RemindersStackParamList, OptionsStackParamList } from './types';
 
 // Hive screens
 import HiveListScreen from '../screens/hives/HiveListScreen';
@@ -21,11 +21,14 @@ import InspectionDetailScreen from '../screens/inspections/InspectionDetailScree
 // Reminder screens
 import RemindersListScreen from '../screens/reminders/RemindersListScreen';
 import ReminderFormScreen from '../screens/reminders/ReminderFormScreen';
+import OptionsScreen from '../screens/options/OptionsScreen';
+import { useI18n } from '../i18n';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const HiveStack = createNativeStackNavigator<HiveStackParamList>();
 const InspectionsStack = createNativeStackNavigator<InspectionsStackParamList>();
 const RemindersStack = createNativeStackNavigator<RemindersStackParamList>();
+const OptionsStack = createNativeStackNavigator<OptionsStackParamList>();
 
 const screenOptions = {
   headerStyle: { backgroundColor: Colors.background },
@@ -36,37 +39,55 @@ const screenOptions = {
 };
 
 function HiveStackNavigator() {
+  const { t } = useI18n();
+
   return (
     <HiveStack.Navigator screenOptions={screenOptions}>
-      <HiveStack.Screen name="HiveList" component={HiveListScreen} options={{ title: 'Hives' }} />
+      <HiveStack.Screen name="HiveList" component={HiveListScreen} options={{ title: t('nav.hives') }} />
       <HiveStack.Screen name="HiveDetail" component={HiveDetailScreen} options={{ title: '' }} />
-      <HiveStack.Screen name="HiveForm" component={HiveFormScreen} options={{ title: 'Hive' }} />
-      <HiveStack.Screen name="InspectionForm" component={InspectionFormScreen} options={{ title: 'Inspection' }} />
+      <HiveStack.Screen name="HiveForm" component={HiveFormScreen} options={{ title: t('nav.hive') }} />
+      <HiveStack.Screen name="InspectionForm" component={InspectionFormScreen} options={{ title: t('nav.inspection') }} />
       <HiveStack.Screen name="InspectionDetail" component={InspectionDetailScreen} options={{ title: '' }} />
-      <HiveStack.Screen name="QueenForm" component={QueenFormScreen} options={{ title: 'Queen' }} />
+      <HiveStack.Screen name="QueenForm" component={QueenFormScreen} options={{ title: t('nav.queen') }} />
     </HiveStack.Navigator>
   );
 }
 
 function InspectionsStackNavigator() {
+  const { t } = useI18n();
+
   return (
     <InspectionsStack.Navigator screenOptions={screenOptions}>
-      <InspectionsStack.Screen name="InspectionsList" component={InspectionsListScreen} options={{ title: 'Inspections' }} />
+      <InspectionsStack.Screen name="InspectionsList" component={InspectionsListScreen} options={{ title: t('nav.inspections') }} />
       <InspectionsStack.Screen name="InspectionDetail" component={InspectionDetailScreen} options={{ title: '' }} />
     </InspectionsStack.Navigator>
   );
 }
 
 function RemindersStackNavigator() {
+  const { t } = useI18n();
+
   return (
     <RemindersStack.Navigator screenOptions={screenOptions}>
-      <RemindersStack.Screen name="RemindersList" component={RemindersListScreen} options={{ title: 'Reminders' }} />
-      <RemindersStack.Screen name="ReminderForm" component={ReminderFormScreen} options={{ title: 'Reminder' }} />
+      <RemindersStack.Screen name="RemindersList" component={RemindersListScreen} options={{ title: t('nav.reminders') }} />
+      <RemindersStack.Screen name="ReminderForm" component={ReminderFormScreen} options={{ title: t('nav.reminder') }} />
     </RemindersStack.Navigator>
   );
 }
 
+function OptionsStackNavigator() {
+  const { t } = useI18n();
+
+  return (
+    <OptionsStack.Navigator screenOptions={screenOptions}>
+      <OptionsStack.Screen name="OptionsHome" component={OptionsScreen} options={{ title: t('nav.options') }} />
+    </OptionsStack.Navigator>
+  );
+}
+
 export default function RootNavigator() {
+  const { t } = useI18n();
+
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -88,7 +109,7 @@ export default function RootNavigator() {
           name="HivesTab"
           component={HiveStackNavigator}
           options={{
-            tabBarLabel: 'Hives',
+            tabBarLabel: t('nav.hives'),
             tabBarIcon: ({ color, size }) => <Hexagon color={color} size={size} strokeWidth={1.5} />,
           }}
         />
@@ -96,7 +117,7 @@ export default function RootNavigator() {
           name="InspectionsTab"
           component={InspectionsStackNavigator}
           options={{
-            tabBarLabel: 'Inspections',
+            tabBarLabel: t('nav.inspections'),
             tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} strokeWidth={1.5} />,
           }}
         />
@@ -104,8 +125,16 @@ export default function RootNavigator() {
           name="RemindersTab"
           component={RemindersStackNavigator}
           options={{
-            tabBarLabel: 'Reminders',
+            tabBarLabel: t('nav.reminders'),
             tabBarIcon: ({ color, size }) => <Bell color={color} size={size} strokeWidth={1.5} />,
+          }}
+        />
+        <Tab.Screen
+          name="OptionsTab"
+          component={OptionsStackNavigator}
+          options={{
+            tabBarLabel: t('nav.options'),
+            tabBarIcon: ({ color, size }) => <SlidersHorizontal color={color} size={size} strokeWidth={1.5} />,
           }}
         />
       </Tab.Navigator>

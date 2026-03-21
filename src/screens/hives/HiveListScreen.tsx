@@ -16,10 +16,12 @@ import HiveCard from '../../components/feature/HiveCard';
 import EmptyState from '../../components/common/EmptyState';
 import { Colors } from '../../theme/colors';
 import { Spacing } from '../../theme/spacing';
+import { useI18n } from '../../i18n';
 
 type Props = NativeStackScreenProps<HiveStackParamList, 'HiveList'>;
 
 export default function HiveListScreen({ navigation }: Props) {
+  const { t } = useI18n();
   const { hives, queens, loading, loadHives, loadQueenForHive } = useHiveStore();
   const { hiveInspections, loadInspectionsForHive } = useInspectionStore();
 
@@ -60,8 +62,8 @@ export default function HiveListScreen({ navigation }: Props) {
         ListEmptyComponent={
           loading ? null : (
             <EmptyState
-              message="No hives yet"
-              subMessage="Tap + to register your first hive"
+              message={t('empty.noHivesTitle')}
+              subMessage={t('empty.noHivesSubtitle')}
             />
           )
         }

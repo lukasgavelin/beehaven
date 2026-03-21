@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { translate } from '../i18n';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -12,7 +13,7 @@ Notifications.setNotificationHandler({
 export async function setupNotificationChannel(): Promise<void> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('reminders', {
-      name: 'Reminders',
+      name: translate('notification.channelName'),
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#C8973A',
@@ -42,7 +43,7 @@ export async function scheduleReminder(
   const id = await Notifications.scheduleNotificationAsync({
     content: {
       title,
-      body: body || 'Time to check your hive!',
+      body: body || translate('notification.defaultBody'),
       sound: true,
       data: {},
     },

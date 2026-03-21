@@ -18,6 +18,7 @@ import Badge from '../../components/common/Badge';
 import { Colors } from '../../theme/colors';
 import { Spacing } from '../../theme/spacing';
 import { BroodStatus } from '../../types';
+import { getBroodStatusLabel, getHoneyStoreLabel, getTemperLabel, useI18n } from '../../i18n';
 
 type Props =
   | NativeStackScreenProps<HiveStackParamList, 'InspectionDetail'>
@@ -30,6 +31,7 @@ function broodBadgeColor(status: BroodStatus): 'success' | 'warning' | 'error' {
 }
 
 export default function InspectionDetailScreen({ route, navigation }: Props) {
+  const { t, formatDate, locale } = useI18n();
   const { inspectionId, hiveId } = route.params as { inspectionId: number; hiveId: number };
   const { inspections, hiveInspections, removeInspection } = useInspectionStore();
 
@@ -37,10 +39,10 @@ export default function InspectionDetailScreen({ route, navigation }: Props) {
   const inspection = allInspections.find((i) => i.id === inspectionId);
 
   const handleDelete = useCallback(() => {
-    Alert.alert('Delete Inspection', 'This inspection will be permanently deleted.', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('inspection.detail.deleteTitle'), t('inspection.detail.deleteMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
-        text: 'Delete',
+        text: t('common.delete'),
         style: 'destructive',
         onPress: async () => {
           await removeInspection(inspectionId, hiveId);
@@ -48,11 +50,11 @@ export default function InspectionDetailScreen({ route, navigation }: Props) {
         },
       },
     ]);
-  }, [inspectionId, hiveId]);
+  }, [hiveId, inspectionId, navigation, removeInspection, t]);
 
   if (!inspection) return null;
 
-  const date = new Date(inspection.inspectedAt).toLocaleDateString('en-GB', {
+  const date = formatDate(inspection.inspectedAt, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -73,15 +75,15 @@ export default function InspectionDetailScreen({ route, navigation }: Props) {
         {/* Status row */}
         <View style={styles.badgeRow}>
           <Badge
-            label={`Brood: ${inspection.broodStatus}`}
+            label={t('inspection.detail.broodBadge', { status: getBroodStatusLabel(inspection.broodStatus, locale) })}
             color={broodBadgeColor(inspection.broodStatus)}
           />
           <Badge
-            label={`Honey: ${inspection.honeyStores}`}
+            label={t('inspection.detail.honeyBadge', { level: getHoneyStoreLabel(inspection.honeyStores, locale) })}
             color={inspection.honeyStores === 'empty' ? 'error' : inspection.honeyStores === 'low' ? 'warning' : 'success'}
           />
           <Badge
-            label={inspection.queenSeen ? 'Queen seen' : 'Queen not seen'}
+            label={inspection.queenSeen ? t('inspection.detail.queenSeen') : t('inspection.detail.queenNotSeen')}
             color={inspection.queenSeen ? 'success' : 'warning'}
           />
         </View>
@@ -89,11 +91,11 @@ export default function InspectionDetailScreen({ route, navigation }: Props) {
         {/* Details */}
         <View style={styles.detailsGrid}>
           <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Temper</Text>
-            <Text style={styles.detailValue}>{describeTemper(inspection.temper)}</Text>
+            <Text style={styles.detailLabel}>{t('inspection.detail.temperLabel')}</Text>
+            <Text style={styles.detailValue}>{inspection.temper} - {getTemperLabel(inspection.temper, locale)}</Text>
           </View>
           <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Varroa count</Text>
+            <Text style={styles.detailLabel}>{t('inspection.detail.varroaCountLabel')}</Text>
             <Text style={styles.detailValue}>{inspection.varroaCount}</Text>
           </View>
         </View>
@@ -101,7 +103,7 @@ export default function InspectionDetailScreen({ route, navigation }: Props) {
         {/* Weather */}
         {inspection.weatherTemp !== null && inspection.weatherCondition && inspection.weatherHumidity !== null && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Weather at inspection</Text>
+            <Text style={styles.sectionLabel}>{t('inspection.detail.weatherLabel')}</Text>
             <WeatherChip
               temp={inspection.weatherTemp}
               condition={inspection.weatherCondition}
@@ -113,24 +115,13 @@ export default function InspectionDetailScreen({ route, navigation }: Props) {
         {/* Notes */}
         {inspection.notes ? (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Notes</Text>
+            <Text style={styles.sectionLabel}>{t('inspection.detail.notesLabel')}</Text>
             <Text style={styles.notesText}>{inspection.notes}</Text>
           </View>
         ) : null}
       </ScrollView>
     </SafeAreaView>
   );
-}
-
-function describeTemper(temper: number): string {
-  switch (temper) {
-    case 1: return '1 — Very calm';
-    case 2: return '2 — Calm';
-    case 3: return '3 — Neutral';
-    case 4: return '4 — Defensive';
-    case 5: return '5 — Aggressive';
-    default: return String(temper);
-  }
 }
 
 const styles = StyleSheet.create({
