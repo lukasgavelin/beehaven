@@ -88,24 +88,23 @@ beehaven/
 ├── tailwind.config.js       # Tailwind theme (custom colors, fonts)
 └── src/
     ├── components/
-    │   ├── common/          # Badge, Button, Card, TextInput, EmptyState
-  │   │                    # LanguagePickerRow
-  │   └── feature/         # HiveCard, InspectionRow, WeatherChip, ReminderItem
+    │   ├── common/          # Badge, Button, Card, TextInput, EmptyState, LanguagePickerRow
+    │   └── feature/         # HiveCard, InspectionRow, WeatherChip, ReminderItem
     ├── db/
     │   ├── index.ts         # Drizzle DB instance
     │   ├── schema.ts        # Table definitions (hives, queens, inspections, reminders)
     │   ├── migrations/      # SQL migrations + Drizzle journal
     │   └── queries/         # Per-table query helpers
-  ├── i18n/
-  │   └── index.ts         # Translation dictionaries, locale store, formatting helpers
+    ├── i18n/
+    │   └── index.ts         # Translation dictionaries, locale store, formatting helpers
     ├── navigation/
     │   ├── RootNavigator.tsx
     │   └── types.ts
     ├── screens/
     │   ├── hives/
     │   ├── inspections/
-  │   ├── options/
-  │   └── reminders/
+    │   ├── options/
+    │   └── reminders/
     ├── services/
     │   ├── locationService.ts
     │   ├── weatherService.ts
@@ -145,6 +144,7 @@ Scan the QR code with **Expo Go** on Android, or the **Camera app** on iOS.
 ```bash
 npm start         # Expo dev server
 npm run android   # Open directly on Android emulator/device
+npm run build:apk # Submit an installable Android APK build to EAS
 npm run ios       # Open on iOS simulator (macOS only)
 npm run web       # Open in browser
 ```
@@ -155,6 +155,31 @@ npm run web       # Open in browser
 npm run android   # Open directly on Android emulator/device
 npm run ios       # Open on iOS simulator (macOS only)
 npm run web       # Open in browser
+```
+
+### Android Builds
+
+Beehaven uses EAS Build for Android release artifacts.
+
+```bash
+npm run build:apk
+```
+
+Equivalent direct EAS command:
+
+```bash
+eas build -p android --profile apk
+```
+
+Build profiles in [eas.json](eas.json):
+
+- `apk` — internal distribution, generates an installable `.apk` for device testing
+- `production` — production Android build intended for store distribution, typically as an `.aab`
+
+To create a production Android bundle:
+
+```bash
+eas build -p android --profile production
 ```
 
 ---
