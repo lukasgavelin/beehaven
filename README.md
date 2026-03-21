@@ -2,6 +2,8 @@
 
 A beekeeping management app built with Expo and React Native. Beehaven helps beekeepers track hives, log inspections, monitor queen health, schedule reminders, and capture real-time weather conditions — all stored locally on-device with no account required.
 
+Beehaven now includes a built-in language picker and localized UI for English, German, French, Spanish, and Swedish.
+
 ---
 
 ## Features
@@ -17,6 +19,8 @@ A beekeeping management app built with Expo and React Native. Beehaven helps bee
   - Auto-fetched weather (temperature, condition, humidity)
 - **Reminders** — Schedule hive tasks with local push notifications
 - **Weather Integration** — Automatically fetches weather via GPS at inspection time using the Open-Meteo API
+- **Localization** — User-selectable language with persisted preference and locale-aware date/time formatting
+- **Options Screen** — App metadata, language selection, and technical information available in-app
 - **Offline-first** — All data stored locally via SQLite with no backend or login required
 
 ---
@@ -30,12 +34,24 @@ A beekeeping management app built with Expo and React Native. Beehaven helps bee
 | Navigation | React Navigation v7 (Bottom Tabs + Native Stack) |
 | Database | expo-sqlite + Drizzle ORM |
 | State | Zustand |
+| Localization | Custom `src/i18n` module + AsyncStorage persistence |
 | Styling | NativeWind v4 (Tailwind CSS for React Native) |
 | Icons | Lucide React Native |
 | Fonts | Inter (via @expo-google-fonts) |
 | Weather | Open-Meteo (free, no API key) |
 | Notifications | expo-notifications |
 | Location | expo-location |
+| Device Storage | @react-native-async-storage/async-storage |
+
+---
+
+## Supported Languages
+
+- English
+- Deutsch
+- Français
+- Español
+- Svenska
 
 ---
 
@@ -56,6 +72,9 @@ A beekeeping management app built with Expo and React Native. Beehaven helps bee
 - **Reminders List** — Pending and completed reminders, sortable and deletable
 - **Reminder Form** — Create a reminder with date/time picker and optional hive association
 
+### Options
+- **Options Screen** — Language picker plus app version, storage, notification, weather, privacy, and framework details
+
 ---
 
 ## Project Structure
@@ -70,19 +89,23 @@ beehaven/
 └── src/
     ├── components/
     │   ├── common/          # Badge, Button, Card, TextInput, EmptyState
-    │   └── feature/         # HiveCard, InspectionRow, WeatherChip, ReminderItem
+  │   │                    # LanguagePickerRow
+  │   └── feature/         # HiveCard, InspectionRow, WeatherChip, ReminderItem
     ├── db/
     │   ├── index.ts         # Drizzle DB instance
     │   ├── schema.ts        # Table definitions (hives, queens, inspections, reminders)
     │   ├── migrations/      # SQL migrations + Drizzle journal
     │   └── queries/         # Per-table query helpers
+  ├── i18n/
+  │   └── index.ts         # Translation dictionaries, locale store, formatting helpers
     ├── navigation/
     │   ├── RootNavigator.tsx
     │   └── types.ts
     ├── screens/
     │   ├── hives/
     │   ├── inspections/
-    │   └── reminders/
+  │   ├── options/
+  │   └── reminders/
     ├── services/
     │   ├── locationService.ts
     │   ├── weatherService.ts
@@ -117,6 +140,15 @@ npm start
 
 Scan the QR code with **Expo Go** on Android, or the **Camera app** on iOS.
 
+### Available Scripts
+
+```bash
+npm start         # Expo dev server
+npm run android   # Open directly on Android emulator/device
+npm run ios       # Open on iOS simulator (macOS only)
+npm run web       # Open in browser
+```
+
 ### Platform-specific
 
 ```bash
@@ -143,15 +175,47 @@ Then update `src/db/migrations/migrations.js` accordingly.
 
 ---
 
+## Localization
+
+Localization is centralized in `src/i18n/index.ts`.
+
+- Supported locales are limited to `en`, `de`, `fr`, `es`, and `sv`
+- Language preference is persisted locally with AsyncStorage
+- The `useI18n()` hook exposes translated copy, locale tags, and shared date formatting helpers
+- Notification channel names and default reminder bodies are also localized
+
+If you add or rename UI copy, update the English dictionary first and then keep the other locale dictionaries aligned.
+
+---
+
+## Notifications And Weather
+
+- Reminder notifications are scheduled locally with `expo-notifications`
+- Weather lookup uses device coordinates and Open-Meteo at inspection time
+- The default Android notification channel is `reminders`
+- Notification and location setup is initialized during app bootstrap in `App.tsx`
+
+---
+
 ## Permissions
 
 The app requests the following permissions at runtime:
 
 | Permission | Purpose |
 |---|---|
+| `ACCESS_COARSE_LOCATION` | Fallback location access for weather lookup |
 | `ACCESS_FINE_LOCATION` | Fetch GPS coordinates for weather lookup |
-| `POST_NOTIFICATIONS` | Schedule local reminder notifications |
+| `POST_NOTIFICATIONS` | Schedule local reminder notifications when required by platform/runtime |
+| `RECEIVE_BOOT_COMPLETED` | Allow scheduled reminders to survive device reboot on Android |
 | `SCHEDULE_EXACT_ALARM` | Fire reminders at exact times (Android 12+) |
+
+Configured Expo plugins:
+
+- `expo-sqlite`
+- `expo-font`
+- `expo-notifications`
+- `expo-location`
+- `expo-asset`
 
 ---
 
